@@ -1,0 +1,12 @@
+[Desktop Entry]
+Comment=Ultramarine Linux Theme
+Name=Ultramarine
+X-KDE-PluginInfo-Author=Cappy Ishihara
+X-KDE-PluginInfo-Category=Plasma Look And Feel
+X-KDE-PluginInfo-Email=cappy@cappuchino.xyz
+X-KDE-PluginInfo-EnabledByDefault=true
+X-KDE-PluginInfo-License=LGPL 2.1+
+X-KDE-PluginInfo-Name=org.ultramarinelinux.ultramarine.desktop
+X-KDE-PluginInfo-Version=0.1
+X-KDE-PluginInfo-Website=ultramarine-linux.org
+X-KDE-ServiceTypes=Plasma/LookAndFeel
