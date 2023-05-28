@@ -1,17 +1,17 @@
 [kcminputrc][Mouse]
-cursorTheme=capitaine-cursors
+cursorTheme=Breeze
 
 [kdeglobals][General]
 ColorScheme=BreezeDark
 
 [kdeglobals][Icons]
-Theme=Papirus
+Theme=Breeze
 
 [kdeglobals][KDE]
-widgetStyle=Lightly
+widgetStyle=Breeze
 
 [Wallpaper]
-Image=Ultramarine Dark
+Image=Tortuga Light
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop
@@ -20,8 +20,8 @@ LayoutName=org.kde.breeze.desktop
 LayoutName=org.kde.breeze.desktop
 
 [kwinrc][org.kde.kdecoration2]
-library=org.kde.lightly
-theme=Lightly
+library=org.kde.Breeze
+theme=Breeze
 
 [plasmarc][Theme]
 name=default
