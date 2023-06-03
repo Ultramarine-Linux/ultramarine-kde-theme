@@ -5,7 +5,7 @@ cursorTheme=Breeze
 ColorScheme=BreezeDark
 
 [kdeglobals][Icons]
-Theme=Breeze
+Theme=BreezeDark
 
 [kdeglobals][KDE]
 widgetStyle=Breeze
