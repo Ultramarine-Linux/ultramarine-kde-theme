@@ -1,17 +1,21 @@
 [kcminputrc][Mouse]
-cursorTheme=Breeze
+cursorTheme=Breeze_Snow
 
 [kdeglobals][General]
 ColorScheme=BreezeDark
+widgetStyle=Breeze
+Name=Breeze Dark
+
 
 [kdeglobals][Icons]
-Theme=BreezeDark
+Theme=Papirus-Dark
 
 [kdeglobals][KDE]
-widgetStyle=Breeze
+LookAndFeelPackage=org.kde.breezedark.desktop
+contrast=4
 
 [Wallpaper]
-Image=Tortuga Light
+Image=Tortuga Dark
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop
