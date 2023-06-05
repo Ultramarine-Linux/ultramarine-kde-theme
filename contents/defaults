@@ -11,7 +11,6 @@ Name=Breeze Dark
 Theme=Papirus-Dark
 
 [kdeglobals][KDE]
-LookAndFeelPackage=org.kde.breezedark.desktop
 contrast=4
 
 [Wallpaper]
