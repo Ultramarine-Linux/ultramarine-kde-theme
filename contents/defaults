@@ -14,7 +14,7 @@ Theme=Papirus-Dark
 contrast=4
 
 [Wallpaper]
-Image=Tortuga Dark
+Image=Forresty Skies Dark
 
 [kwinrc][DesktopSwitcher]
 LayoutName=org.kde.breeze.desktop
