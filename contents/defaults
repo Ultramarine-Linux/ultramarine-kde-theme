@@ -1,33 +1,24 @@
-[kcminputrc][Mouse]
-cursorTheme=Breeze_Snow
+[kdeglobals][KDE]
+widgetStyle=Breeze
 
 [kdeglobals][General]
 ColorScheme=BreezeDark
-widgetStyle=Breeze
-Name=Breeze Dark
 
 
 [kdeglobals][Icons]
-Theme=Papirus-Dark
-
-[kdeglobals][KDE]
-contrast=4
-
-[Wallpaper]
-Image=Forresty Skies Dark
-
-[kwinrc][DesktopSwitcher]
-LayoutName=org.kde.breeze.desktop
-
-[kwinrc][WindowSwitcher]
-LayoutName=org.kde.breeze.desktop
-
-[kwinrc][org.kde.kdecoration2]
-library=org.kde.Breeze
-theme=Breeze
+Theme=breeze-dark
 
 [plasmarc][Theme]
 name=default
+
+[Wallpaper]
+Image=Lost Dark
+
+[kcminputrc][Mouse]
+cursorTheme=breeze_cursors
+
+[kwinrc][org.kde.kdecoration2]
+library=org.kde.breeze
 
 [KSplash]
 Theme=org.kde.Breeze

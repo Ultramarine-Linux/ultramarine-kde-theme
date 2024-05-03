@@ -1,0 +1,17 @@
+{
+  "KPackageStructure": "Plasma/LookAndFeel",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "contact@fyralabs.com",
+        "Name": "Ultramarine Linux"
+      }
+    ],
+    "Category": "",
+    "Description": "Ultramarine Linux theme",
+    "Id": "org.ultramarine-linux.ultramarine.desktop",
+    "License": "GPLv2+",
+    "Name": "Ultramarine",
+    "Website": "https://ultramarine-linux.org/"
+  }
+}
