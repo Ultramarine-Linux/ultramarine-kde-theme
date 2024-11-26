@@ -15,7 +15,7 @@ import org.kde.kirigami 2.20 as Kirigami
 import org.kde.breeze.components
 import "timer.js" as AutoTriggerTimer
 
-import org.kde.plasma.private.sessions 2.0
+import org.kde.plasma.private.sessions
 
 Item {
     id: root
@@ -26,9 +26,11 @@ Item {
 
     signal logoutRequested()
     signal haltRequested()
+    signal haltUpdateRequested()
     signal suspendRequested(int spdMethod)
     signal rebootRequested()
     signal rebootRequested2(int opt)
+    signal rebootUpdateRequested()
     signal cancelRequested()
     signal lockScreenRequested()
     signal cancelSoftwareUpdateRequested()
@@ -49,19 +51,21 @@ Item {
     property var currentAction: {
         switch (sdtype) {
         case ShutdownType.ShutdownTypeReboot:
-            return () => root.rebootRequested();
+            return () => softwareUpdatePending ? rebootUpdateRequested() : rebootRequested();
         case ShutdownType.ShutdownTypeHalt:
-            return () => root.haltRequested();
+            return () => softwareUpdatePending ? haltUpdateRequested() : haltRequested();
         default:
-            return () => root.logoutRequested();
+            return () => logoutRequested();
         }
     }
+
+    readonly property bool showAllOptions: sdtype === ShutdownType.ShutdownTypeDefault
 
     KCoreAddons.KUser {
         id: kuser
     }
 
-    // For showing a "other users are logged in" hint
+    // For showing an "other users are logged in" hint
     SessionsModel {
         id: sessionsModel
         includeUnusedSessions: false
@@ -74,13 +78,13 @@ Item {
 
     onRemainingTimeChanged: {
         if (remainingTime <= 0) {
-            (root.currentAction)();
+            (currentAction)();
         }
     }
 
     Timer {
         id: countDownTimer
-        running: true
+        running: !showAllOptions
         repeat: true
         interval: 1000
         onTriggered: remainingTime--
@@ -99,12 +103,12 @@ Item {
         id: backgroundRect
         anchors.fill: parent
         //use "black" because this is intended to look like a general darkening of the scene. a dark gray as normal background would just look too "washed out"
-        color: root.isLightColor(Kirigami.Theme.backgroundColor) ? Kirigami.Theme.backgroundColor : "black"
+        color: isLightColor(Kirigami.Theme.backgroundColor) ? Kirigami.Theme.backgroundColor : "black"
         opacity: 0.5
     }
     MouseArea {
         anchors.fill: parent
-        onClicked: root.cancelRequested()
+        onClicked: cancelRequested()
     }
     UserDelegate {
         width: Kirigami.Units.gridUnit * 8
@@ -120,6 +124,8 @@ Item {
         name: kuser.fullName
     }
     ColumnLayout {
+        id: column
+
         anchors {
             top: parent.verticalCenter
             topMargin: Kirigami.Units.gridUnit * 2
@@ -129,106 +135,6 @@ Item {
 
         height: Math.max(implicitHeight, Kirigami.Units.gridUnit * 10)
         width: Math.max(implicitWidth, Kirigami.Units.gridUnit * 16)
-
-        PlasmaComponents.Label {
-            font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
-            Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 16, logoutButtonsRow.implicitWidth)
-            Layout.alignment: Qt.AlignHCenter
-            Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            font.italic: true
-            text: i18ndp("plasma_lookandfeel_org.kde.lookandfeel",
-                         "One other user is currently logged in. If the computer is shut down or restarted, that user may lose work.",
-                         "%1 other users are currently logged in. If the computer is shut down or restarted, those users may lose work.",
-                         sessionsModel.count - 1)
-            visible: sessionsModel.count > 1
-        }
-
-        PlasmaComponents.Label {
-            font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
-            Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 16, logoutButtonsRow.implicitWidth)
-            Layout.alignment: Qt.AlignHCenter
-            Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            font.italic: true
-            text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "When restarted, the computer will enter the firmware setup screen.")
-            visible: rebootToFirmwareSetup
-        }
-
-        RowLayout {
-            id: logoutButtonsRow
-            spacing: Kirigami.Units.gridUnit * 2
-            Layout.alignment: Qt.AlignHCenter
-            LogoutButton {
-                id: suspendButton
-                iconSource: "system-suspend"
-                text: i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "Suspend to RAM", "Sleep")
-                onClicked: root.sleepRequested()
-                KeyNavigation.left: logoutButton
-                KeyNavigation.right: hibernateButton
-                KeyNavigation.down: okButton
-                visible: spdMethods.SuspendState
-            }
-            LogoutButton {
-                id: hibernateButton
-                iconSource: "system-suspend-hibernate"
-                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Hibernate")
-                onClicked: root.hibernateRequested()
-                KeyNavigation.left: suspendButton
-                KeyNavigation.right: rebootButton
-                KeyNavigation.down: okButton
-                visible: spdMethods.HibernateState
-            }
-            LogoutButton {
-                id: rebootButton
-                iconSource: softwareUpdatePending ? "update-none" : "system-reboot"
-                text: softwareUpdatePending ? i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "@action:button Keep short", "Install Updates & Restart")
-                                            : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart")
-                onClicked: root.rebootRequested()
-                KeyNavigation.left: hibernateButton
-                KeyNavigation.right: rebootWithoutUpdatesButton
-                KeyNavigation.down: okButton
-                focus: sdtype === ShutdownType.ShutdownTypeReboot
-                visible: maysd
-            }
-            LogoutButton {
-                id: rebootWithoutUpdatesButton
-                iconSource: "system-reboot"
-                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart")
-                onClicked: {
-                    root.cancelSoftwareUpdateRequested()
-                    root.rebootRequested()
-                }
-                KeyNavigation.left: rebootButton
-                KeyNavigation.right: shutdownButton
-                KeyNavigation.down: okButton
-                visible: maysd && softwareUpdatePending
-            }
-            LogoutButton {
-                id: shutdownButton
-                iconSource: "system-shutdown"
-                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Shut Down")
-                onClicked: root.haltRequested()
-                KeyNavigation.left: rebootWithoutUpdatesButton
-                KeyNavigation.right: logoutButton
-                KeyNavigation.down: okButton
-                focus: sdtype === ShutdownType.ShutdownTypeHalt
-                visible: maysd
-            }
-            LogoutButton {
-                id: logoutButton
-                iconSource: "system-log-out"
-                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Log Out")
-                onClicked: root.logoutRequested()
-                KeyNavigation.left: shutdownButton
-                KeyNavigation.right: suspendButton
-                KeyNavigation.down: okButton
-                focus: sdtype === ShutdownType.ShutdownTypeNone
-                visible: canLogout
-            }
-        }
 
         PlasmaComponents.Label {
             font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
@@ -245,40 +151,161 @@ Item {
                 switch (sdtype) {
                     case ShutdownType.ShutdownTypeReboot:
                         return softwareUpdatePending ? i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Installing software updates and restarting in 1 second", "Installing software updates and restarting in %1 seconds", root.remainingTime)
-                                                     : i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Restarting in 1 second", "Restarting in %1 seconds", root.remainingTime);
-                    case ShutdownType.ShutdownTypeHalt:
-                        return i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Shutting down in 1 second", "Shutting down in %1 seconds", root.remainingTime);
-                    default:
+                        : i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Restarting in 1 second", "Restarting in %1 seconds", root.remainingTime);
+                    case ShutdownType.ShutdownTypeNone:
                         return i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Logging out in 1 second", "Logging out in %1 seconds", root.remainingTime);
+                    case ShutdownType.ShutdownTypeHalt:
+                    default:
+                        return softwareUpdatePending ? i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Installing software updates and shutting down in 1 second", "Installing software updates and shutting down in %1 seconds", root.remainingTime)
+                        : i18ndp("plasma_lookandfeel_org.kde.lookandfeel", "Shutting down in 1 second", "Shutting down in %1 seconds", root.remainingTime);
                 }
             }
+            textFormat: Text.PlainText
+        }
+
+        PlasmaComponents.Label {
+            font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
+            Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 16, logoutButtonsRow.implicitWidth)
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            font.italic: true
+            text: i18ndp("plasma_lookandfeel_org.kde.lookandfeel",
+                         "One other user is currently logged in. If the computer is shut down or restarted, that user may lose work.",
+                         "%1 other users are currently logged in. If the computer is shut down or restarted, those users may lose work.",
+                         sessionsModel.count - 1)
+            textFormat: Text.PlainText
+            visible: sessionsModel.count > 1
+        }
+
+        PlasmaComponents.Label {
+            font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
+            Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 16, logoutButtonsRow.implicitWidth)
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            font.italic: true
+            text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "When restarted, the computer will enter the firmware setup screen.")
+            textFormat: Text.PlainText
+            visible: rebootToFirmwareSetup
         }
 
         RowLayout {
+            id: logoutButtonsRow
+            spacing: Kirigami.Units.gridUnit * 2
+            Layout.topMargin: Kirigami.Units.gridUnit * 2 - column.spacing
             Layout.alignment: Qt.AlignHCenter
-            PlasmaComponents.Button {
-                id: okButton
-                implicitWidth: Kirigami.Units.gridUnit * 6
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
-                text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "OK")
-                onClicked: (root.currentAction)()
-                Keys.onEnterPressed: (root.currentAction)()
-                Keys.onReturnPressed: (root.currentAction)()
+            LogoutButton {
+                id: suspendButton
+                icon.name: "system-suspend"
+                text: root.showAllOptions ? i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "Suspend to RAM", "Sleep")
+                                          : i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "Suspend to RAM", "Sleep Now")
+                onClicked: sleepRequested()
                 KeyNavigation.left: cancelButton
-                KeyNavigation.right: cancelButton
-                KeyNavigation.up: suspendButton
+                KeyNavigation.right: hibernateButton.visible ? hibernateButton : (rebootButton.visible ? rebootButton : (shutdownButton.visible ? shutdownButton : (logoutButton.visible ? logoutButton : cancelButton)))
+                visible: spdMethods.SuspendState && root.showAllOptions
             }
-            PlasmaComponents.Button {
+            LogoutButton {
+                id: hibernateButton
+                icon.name: "system-suspend-hibernate"
+                text: root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Hibernate")
+                                          : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Hibernate Now")
+                onClicked: hibernateRequested()
+                KeyNavigation.left: suspendButton.visible ? suspendButton : cancelButton
+                KeyNavigation.right: rebootButton.visible ? rebootButton : (shutdownButton.visible ? shutdownButton : (logoutButton.visible ? logoutButton : cancelButton))
+                visible: spdMethods.HibernateState && root.showAllOptions
+            }
+            LogoutButton {
+                id: rebootButton
+                icon.name: softwareUpdatePending ? "system-reboot-update" : "system-reboot"
+                text: {
+                    if (softwareUpdatePending) {
+                        return i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "@action:button Keep short", "Install Updates and Restart")
+                    } else {
+                        return root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart")
+                                                   : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart Now")
+                    }
+                }
+                onClicked: {
+                    if (softwareUpdatePending) {
+                        rebootUpdateRequested();
+                    } else {
+                        rebootRequested();
+                    }
+                }
+                KeyNavigation.left: hibernateButton.visible ? hibernateButton : (suspendButton.visible ? suspendButton : cancelButton)
+                KeyNavigation.right: rebootWithoutUpdatesButton.visible ? rebootWithoutUpdatesButton : (shutdownButton.visible ? shutdownButton : (logoutButton.visible ? logoutButton : cancelButton))
+                focus: sdtype === ShutdownType.ShutdownTypeReboot
+                visible: maysd && (sdtype === ShutdownType.ShutdownTypeReboot || root.showAllOptions)
+            }
+            LogoutButton {
+                id: rebootWithoutUpdatesButton
+                icon.name: "system-reboot"
+                text: root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart")
+                                          : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Restart Now")
+                onClicked: {
+                    rebootRequested();
+                }
+                KeyNavigation.left: rebootButton
+                KeyNavigation.right: shutdownButton.visible ? shutdownButton : (logoutButton.visible ? logoutButton : cancelButton)
+                visible: maysd && softwareUpdatePending && (sdtype === ShutdownType.ShutdownTypeReboot || root.showAllOptions)
+            }
+            LogoutButton {
+                id: shutdownButton
+                icon.name: softwareUpdatePending ? "system-shutdown-update" : "system-shutdown"
+                text: {
+                    if (softwareUpdatePending) {
+                        return i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "@action:button Keep short", "Install Updates and Shut Down")
+                    } else {
+                        return root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Shut Down")
+                                                   : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Shut Down Now")
+                    }
+                }
+                onClicked: {
+                    if (softwareUpdatePending) {
+                        haltUpdateRequested();
+                    } else {
+                        haltRequested();
+                    }
+                }
+                KeyNavigation.left: rebootWithoutUpdatesButton.visible ? rebootWithoutUpdatesButton : (rebootButton.visible ? rebootButton : (hibernateButton.visible ? hibernateButton : (suspendButton.visible ? suspendButton : cancelButton)))
+                KeyNavigation.right: shutdownWithoutUpdatesButton.visible ? shutdownWithoutUpdatesButton : (logoutButton.visible ? logoutButton : cancelButton)
+                focus: sdtype === ShutdownType.ShutdownTypeHalt || root.showAllOptions
+                visible: maysd && (sdtype === ShutdownType.ShutdownTypeHalt || root.showAllOptions)
+            }
+            LogoutButton {
+                id: shutdownWithoutUpdatesButton
+                icon.name: "system-shutdown"
+                text: root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Shut Down")
+                                          : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Shut Down Now")
+                onClicked: {
+                    haltRequested();
+                }
+                KeyNavigation.left: shutdownButton
+                KeyNavigation.right: logoutButton.visible ? logoutButton : cancelButton
+                focus: sdtype === ShutdownType.ShutdownTypeHalt || root.showAllOptions
+                visible: maysd && softwareUpdatePending && (sdtype === ShutdownType.ShutdownTypeHalt || root.showAllOptions)
+            }
+            LogoutButton {
+                id: logoutButton
+                icon.name: "system-log-out"
+                text: root.showAllOptions ? i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Log Out")
+                                          : i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Log Out Now")
+                onClicked: logoutRequested()
+                KeyNavigation.left: shutdownWithoutUpdatesButton.visible ? shutdownWithoutUpdatesButton : (shutdownButton.visible ? shutdownButton : (rebootWithoutUpdatesButton.visible ? rebootWithoutUpdatesButton : (rebootButton.visible ? rebootButton : (hibernateButton.visible ? hibernateButton : (suspendButton.visible ? suspendButton : cancelButton)))))
+                KeyNavigation.right: cancelButton
+                focus: sdtype === ShutdownType.ShutdownTypeNone
+                visible: canLogout && (sdtype === ShutdownType.ShutdownTypeNone || root.showAllOptions)
+            }
+            LogoutButton {
                 id: cancelButton
-                implicitWidth: Kirigami.Units.gridUnit * 6
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize + 1
+                icon.name: "dialog-cancel"
                 text: i18nd("plasma_lookandfeel_org.kde.lookandfeel", "Cancel")
-                onClicked: root.cancelRequested()
-                Keys.onEnterPressed: root.cancelRequested()
-                Keys.onReturnPressed: root.cancelRequested()
-                KeyNavigation.left: okButton
-                KeyNavigation.right: okButton
-                KeyNavigation.up: suspendButton
+                onClicked: cancelRequested()
+                KeyNavigation.left: logoutButton.visible ? logoutButton : (shutdownWithoutUpdatesButton.visible ? shutdownWithoutUpdatesButton : (shutdownButton.visible ? shutdownButton : (rebootWithoutUpdatesButton.visible ? rebootWithoutUpdatesButton : (rebootButton.visible ? rebootButton : (hibernateButton.visible ? hibernateButton : suspendButton)))))
+                KeyNavigation.right: suspendButton.visible ? suspendButton : (hibernateButton.visible ? hibernateButton : rebootButton)
             }
         }
     }
