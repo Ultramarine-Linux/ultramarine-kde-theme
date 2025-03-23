@@ -37,10 +37,10 @@ Rectangle {
             anchors.centerIn: parent
 
             asynchronous: true
-            source: "images/plasma.svgz"
+            source: "images/ultramarine-transp.svgz"
 
-            sourceSize.width: size
-            sourceSize.height: size
+            sourceSize.width: size * 1.5
+            sourceSize.height: size * 1.5
         }
 
         // TODO: port to PlasmaComponents3.BusyIndicator
