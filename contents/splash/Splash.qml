@@ -37,10 +37,10 @@ Rectangle {
             anchors.centerIn: parent
 
             asynchronous: true
-            source: "images/ultramarine-transp.svgz"
+            source: "images/plasma.svgz"
 
-            sourceSize.width: size * 1.5
-            sourceSize.height: size * 1.5
+            sourceSize.width: size
+            sourceSize.height: size
         }
 
         // TODO: port to PlasmaComponents3.BusyIndicator
@@ -77,6 +77,8 @@ Rectangle {
                 color: "#eff0f1"
                 anchors.verticalCenter: parent.verticalCenter
                 text: i18ndc("plasma_lookandfeel_org.kde.lookandfeel", "This is the first text the user sees while starting in the splash screen, should be translated as something short, is a form that can be seen on a product. Plasma is the project name so shouldn't be translated.", "Plasma made by KDE")
+                Accessible.name: text
+                Accessible.role: Accessible.StaticText
             }
             Image {
                 asynchronous: true
