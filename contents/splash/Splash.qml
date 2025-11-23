@@ -37,7 +37,7 @@ Rectangle {
             anchors.centerIn: parent
 
             asynchronous: true
-            source: "images/plasma.svgz"
+            source: "images/ultramarine-transp.svgz"
 
             sourceSize.width: size
             sourceSize.height: size
