@@ -8,10 +8,10 @@
       }
     ],
     "Category": "",
-    "Description": "Ultramarine Linux theme",
+    "Description": "Ultramarine Linux dark theme",
     "Id": "org.ultramarine-linux.ultramarine.desktop",
-    "License": "GPLv2+",
-    "Name": "Ultramarine",
+    "License": "GPL-2.0-or-later",
+    "Name": "Ultramarine Dark",
     "Website": "https://ultramarine-linux.org/"
   }
 }
