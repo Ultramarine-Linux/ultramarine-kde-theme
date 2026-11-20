@@ -10,7 +10,7 @@ If a new default background is added, *always* update this package to reflect th
 
 ## Credits and licensing
 
-- `color-schemes/UltramarineDark.colors` is based on [Xela's Breeze Darker](https://github.com/xefensor/xela-breeze-darker) by xefensor.
+- `color-schemes/UltramarineDark.colors` is based on [Xela's Breeze Darker](https://github.com/xefensor/xela-breeze-darker) by xefensor
 - `{dark,light}/splash/images/ultramarine-transparent.svgz` is a copyrighted work. (C) Fyra Labs LLC
 - Other files are licensed by their SPDX headers
 - Some images are copywritten by KDE
