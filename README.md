@@ -1,6 +1,6 @@
 # Ultramarine KDE Theme
 
-This repo holds the default themes for Ultramarine Plasma.
+This repo holds the default themes for Ultramarine (with Plasma).
 
 For each release, merge from the upstream plasma-lookandfeel-fedora package (https://src.fedoraproject.org/rpms/plasma-workspace).
 
