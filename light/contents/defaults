@@ -2,13 +2,16 @@
 widgetStyle=Breeze
 
 [kdeglobals][General]
-ColorScheme=BreezeLight
+ColorScheme=UltramarineLight
 
 [kdeglobals][Icons]
 Theme=breeze
 
 [plasmarc][Theme]
 name=default
+
+[Wallpaper]
+Image=Frutiger
 
 [kcminputrc][Mouse]
 cursorTheme=breeze_cursors
